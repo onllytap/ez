@@ -1,62 +1,12 @@
--- Déclaration des variables
-local Playersaimbot = nil
+Playersaimbot = nil
 local mouse = game.Players.LocalPlayer:GetMouse()
-local guiservice = game.GetService(game, "GuiService")
-local players = game.GetService(game, "Players")
+local guiservice = game:GetService("GuiService")
+local players = game:GetService("Players")
 local localPlayer = players.LocalPlayer
-local currentCamera = game.GetService(game, "Workspace").CurrentCamera
+local currentCamera = game:GetService("Workspace").CurrentCamera
 local circle = Drawing.new("Circle")
-local showFov = true  -- Variable pour afficher/masquer la FOV
 
--- Fonction pour mettre à jour l'affichage du cercle FOV
-function updateCircle(Fov, colorCircle)
-    if circle.__OBJECT_EXISTS then
-        circle.Transparency = 1
-        circle.Visible = showFov  -- Contrôle l'affichage du cercle
-        circle.Thickness = 2
-        circle.Color = colorCircle
-        circle.NumSides = 100
-        circle.Radius = (Fov * 6) / 2
-        circle.Filled = false
-        circle.Position = Vector2.new(mouse.X, mouse.Y + (guiservice.GetGuiInset(guiservice).Y))
-    end
-end
-
--- Gérer le toggle de la FOV (afficher/masquer)
-game:GetService("UserInputService").InputBegan:Connect(function(io, p)
-    if io.KeyCode == Enum.KeyCode.F then  -- Appuie sur F pour activer/désactiver la FOV
-        showFov = not showFov  -- Bascule l'affichage
-        circle.Visible = showFov  -- Met à jour la visibilité du cercle
-    end
-end)
-
--- Gérer le toggle du verrouillage des joueurs (hitbox)
-getgenv().setting = getgenv().setting or {}  -- Initialisation de la table setting si nécessaire
-getgenv().setting['LockPlayers'] = false  -- Par défaut, le verrouillage des joueurs est désactivé
-
-game:GetService("UserInputService").InputBegan:Connect(function(io, p)
-    if io.KeyCode == Enum.KeyCode.E then  -- Appuie sur E pour activer/désactiver la hitbox
-        if getgenv().setting['LockPlayers'] then
-            getgenv().setting['LockPlayers'] = false  -- Désactiver la hitbox
-            print("Lock Players | OFF")
-        else
-            getgenv().setting['LockPlayers'] = true  -- Activer la hitbox
-            print("Lock Players | ON")
-        end
-    end
-end)
-
--- Boucle de mise à jour de la FOV (cercle) en temps réel
-spawn(function()
-    game.GetService(game, "RunService").RenderStepped:Connect(function()
-        pcall(function()
-            updateCircle(30, Color3.fromRGB(0, 255, 0))  -- Exemple de FOV et de couleur
-        end)
-    end)
-end)
-
--- Interface utilisateur (UI) pour les informations sur les joueurs (optionnel)
-if game:GetService("CoreGui"):FindFirstChild('infoplayers') then
+if game:GetService("CoreGui"):FindFirstChild('infoplayers') then 
     game:GetService("CoreGui"):FindFirstChild('infoplayers'):Destroy()
 end
 
@@ -123,7 +73,6 @@ HealthPlayers.TextSize = 19.000
 HealthPlayers.TextXAlignment = Enum.TextXAlignment.Left
 HealthPlayers.TextYAlignment = Enum.TextYAlignment.Bottom
 
-
 loackplayerslabel.Name = "loackplayerslabel"
 loackplayerslabel.Parent = Profile
 loackplayerslabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -136,7 +85,6 @@ loackplayerslabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 loackplayerslabel.TextSize = 19.000
 loackplayerslabel.TextXAlignment = Enum.TextXAlignment.Left
 loackplayerslabel.TextYAlignment = Enum.TextYAlignment.Bottom
-
 
 NamePlayers.Name = "NamePlayers"
 NamePlayers.Parent = Profile
@@ -168,40 +116,45 @@ Healthgreen.Size = UDim2.new(0, 155, 0, 8)
 HealthgreenCorner.Name = "HealthgreenCorner"
 HealthgreenCorner.Parent = Healthgreen
 
--- Fonction pour mettre à jour les informations sur le joueur ciblé
+function updateCircle(Fov, colorCircle)
+    if circle.__OBJECT_EXISTS then
+        circle.Transparency = 1
+        circle.Visible = true
+        circle.Thickness = 2
+        circle.Color = colorCircle
+        circle.NumSides = 100
+        circle.Radius = (Fov * 6) / 2
+        circle.Filled = false
+        circle.Position = Vector2.new(mouse.X, mouse.Y + (guiservice:GetGuiInset().Y))
+    end
+end
+
 spawn(function()
-    game.GetService(game, "RunService").RenderStepped:Connect(function()
+    game:GetService("RunService").RenderStepped:Connect(function()
         pcall(function()
-            updateCircle(30, Color3.fromRGB(0, 255, 0))  -- Exemple de FOV et de couleur
+            updateCircle(getgenv().setting['Fov'], getgenv().setting['Color'])
         end)
     end)
 end)
 
--- Interface utilisateur (UI) pour les informations sur les joueurs
 spawn(function()
-    pcall(function()
-        while wait() do
-            for i, v in pairs(players.GetPlayers(players)) do
-                if game.Workspace.Characters:FindFirstChild(v.Name) or game.Workspace.Characters:FindFirstChild(v.DisplayName) then
-                    if v.Character:FindFirstChild('HumanoidRootPart') then
-                        local pos = currentCamera.WorldToViewportPoint(currentCamera, v.Character.HumanoidRootPart.Position)
-                        local magnitude = (Vector2.new(pos.X, pos.Y) - Vector2.new(mouse.X, mouse.Y)).magnitude
-                        if magnitude < (getgenv().setting['Fov'] * 6 -8) /2 then
-                            if magnitude < math.huge then
-                                if (v.Character.HumanoidRootPart.Position-game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).magnitude <= 1000 then
-                                    if v.Name ~= game.Players.LocalPlayer.Name then
-                                        if getgenv().setting['LockPlayers'] == false then
-                                            Playersaimbot = v.Name
-                                            PlayersPosition = v.Character.HumanoidRootPart.Position
-                                            v.Character.HumanoidRootPart.Size = Vector3.new(100,100,100)
-                                        end
-                                    end
-                                end
-                            end
+    while wait() do
+        for _, v in pairs(players:GetPlayers()) do
+            if v ~= localPlayer and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                local pos = currentCamera:WorldToViewportPoint(v.Character.HumanoidRootPart.Position)
+                local magnitude = (Vector2.new(pos.X, pos.Y) - Vector2.new(mouse.X, mouse.Y)).Magnitude
+                if magnitude < (getgenv().setting['Fov'] * 6 - 8) / 2 then
+                    if (v.Character.HumanoidRootPart.Position - localPlayer.Character.HumanoidRootPart.Position).Magnitude <= 1000 then
+                        if getgenv().setting['LockPlayers'] == false then
+                            Playersaimbot = v.Name
+                            PlayersPosition = v.Character.HumanoidRootPart.Position
+                            -- Reducing hitbox size
+                            v.Character.HumanoidRootPart.Size = Vector3.new(2, 2, 2)
+                            break -- Stop checking other players
                         end
                     end
                 end
             end
         end
-    end)
+    end
 end)
