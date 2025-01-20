@@ -7,7 +7,7 @@ local localPlayer = players.LocalPlayer
 local currentCamera = game:GetService("Workspace").CurrentCamera
 local circle = Drawing.new("Circle")
 
--- Paramètres par défaut si non initialisés
+-- Paramètres par défaut
 getgenv().setting = getgenv().setting or {
     Fov = 50,
     Color = Color3.fromRGB(255, 0, 0),
@@ -95,21 +95,25 @@ game:GetService("RunService").RenderStepped:Connect(updateCircle)
 
 -- Détection des joueurs
 spawn(function()
-    while wait() do
+    while wait(0.1) do
         local closestPlayer = nil
         local closestDistance = math.huge
 
         for _, v in pairs(players:GetPlayers()) do
             if v ~= localPlayer and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
-                local pos = currentCamera:WorldToViewportPoint(v.Character.HumanoidRootPart.Position)
-                local magnitude = (Vector2.new(pos.X, pos.Y) - Vector2.new(mouse.X, mouse.Y)).Magnitude
+                -- Vérifications supplémentaires
+                local humanoid = v.Character:FindFirstChild("Humanoid")
+                if humanoid and humanoid.Health > 0 then
+                    local pos = currentCamera:WorldToViewportPoint(v.Character.HumanoidRootPart.Position)
+                    local magnitude = (Vector2.new(pos.X, pos.Y) - Vector2.new(mouse.X, mouse.Y)).Magnitude
 
-                if magnitude < (getgenv().setting.Fov * 6 - 8) / 2 then
-                    local distance = (v.Character.HumanoidRootPart.Position - localPlayer.Character.HumanoidRootPart.Position).Magnitude
+                    if magnitude < (getgenv().setting.Fov * 6 - 8) / 2 then
+                        local distance = (v.Character.HumanoidRootPart.Position - localPlayer.Character.HumanoidRootPart.Position).Magnitude
 
-                    if distance < closestDistance then
-                        closestPlayer = v
-                        closestDistance = distance
+                        if distance < closestDistance then
+                            closestPlayer = v
+                            closestDistance = distance
+                        end
                     end
                 end
             end
@@ -133,11 +137,14 @@ spawn(function()
 end)
 
 -- Verrouillage des joueurs
-game:GetService("UserInputService").InputBegan:Connect(function(io)
+game:GetService("UserInputService").InputBegan:Connect(function(io, gpe)
+    if gpe then return end -- Ignore les événements capturés par le GUI
+
     if io.KeyCode == getgenv().setting.LockPlayersBind then
         getgenv().setting.LockPlayers = not getgenv().setting.LockPlayers
         loackplayerslabel.Text = "Lock Players | " .. (getgenv().setting.LockPlayers and "ON" or "OFF")
     end
+
     if io.KeyCode == getgenv().setting.ResetPlayersBind then
         Playersaimbot = nil
         NamePlayers.Text = "Name | N/A"
