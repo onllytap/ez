@@ -1,3 +1,4 @@
+-- Initialisation
 Playersaimbot = nil
 local mouse = game.Players.LocalPlayer:GetMouse()
 local guiservice = game:GetService("GuiService")
@@ -6,28 +7,30 @@ local localPlayer = players.LocalPlayer
 local currentCamera = game:GetService("Workspace").CurrentCamera
 local circle = Drawing.new("Circle")
 
+-- Paramètres par défaut si non initialisés
+getgenv().setting = getgenv().setting or {
+    Fov = 50,
+    Color = Color3.fromRGB(255, 0, 0),
+    LockPlayers = false,
+    LockPlayersBind = Enum.KeyCode.E,
+    ResetPlayersBind = Enum.KeyCode.R
+}
+
+-- Interface utilisateur
 if game:GetService("CoreGui"):FindFirstChild('infoplayers') then 
     game:GetService("CoreGui"):FindFirstChild('infoplayers'):Destroy()
 end
 
 local infoplayers = Instance.new("ScreenGui")
 local Main = Instance.new("Frame")
-local MainCorner = Instance.new("UICorner")
 local Profile = Instance.new("Frame")
-local ProfileCorner = Instance.new("UICorner")
 local ImageProfile = Instance.new("ImageLabel")
-local ImageProfileCorner = Instance.new("UICorner")
 local HealthPlayers = Instance.new("TextLabel")
 local NamePlayers = Instance.new("TextLabel")
 local loackplayerslabel = Instance.new("TextLabel")
-local Healthbar = Instance.new("Frame")
-local HealthbarCorner = Instance.new("UICorner")
-local Healthgreen = Instance.new("Frame")
-local HealthgreenCorner = Instance.new("UICorner")
 
 infoplayers.Name = "infoplayers"
 infoplayers.Parent = game:GetService("CoreGui")
-infoplayers.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
 Main.Name = "Main"
 Main.Parent = infoplayers
@@ -35,126 +38,110 @@ Main.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 Main.Position = UDim2.new(0.01, 0, 0.3, 0)
 Main.Size = UDim2.new(0, 263, 0, 120)
 
-MainCorner.Name = "MainCorner"
-MainCorner.Parent = Main
-
 Profile.Name = "Profile"
 Profile.Parent = Main
 Profile.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Profile.Position = UDim2.new(0.0570342205, 0, 0.149425298, 0)
+Profile.Position = UDim2.new(0.05, 0, 0.15, 0)
 Profile.Size = UDim2.new(0, 60, 0, 60)
-
-ProfileCorner.CornerRadius = UDim.new(0, 100)
-ProfileCorner.Name = "ProfileCorner"
-ProfileCorner.Parent = Profile
 
 ImageProfile.Name = "ImageProfile"
 ImageProfile.Parent = Profile
 ImageProfile.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-ImageProfile.BackgroundTransparency = 0
-ImageProfile.Position = UDim2.new(0, 1, 0, 1)
 ImageProfile.Size = UDim2.new(0, 58, 0, 58)
-ImageProfile.Image = ''
-
-ImageProfileCorner.CornerRadius = UDim.new(0, 100)
-ImageProfileCorner.Name = "ImageProfileCorner"
-ImageProfileCorner.Parent = ImageProfile
+ImageProfile.Image = ""
 
 HealthPlayers.Name = "HealthPlayers"
 HealthPlayers.Parent = Profile
-HealthPlayers.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-HealthPlayers.BackgroundTransparency = 1.000
-HealthPlayers.Position = UDim2.new(1.24220526, 0, 0.377586216, 0)
+HealthPlayers.BackgroundTransparency = 1
+HealthPlayers.Position = UDim2.new(1.2, 0, 0.4, 0)
 HealthPlayers.Size = UDim2.new(0, 173, 0, 22)
 HealthPlayers.Font = Enum.Font.FredokaOne
 HealthPlayers.Text = "Health | N/A"
 HealthPlayers.TextColor3 = Color3.fromRGB(255, 255, 255)
-HealthPlayers.TextSize = 19.000
-HealthPlayers.TextXAlignment = Enum.TextXAlignment.Left
-HealthPlayers.TextYAlignment = Enum.TextYAlignment.Bottom
+HealthPlayers.TextSize = 19
+
+NamePlayers.Name = "NamePlayers"
+NamePlayers.Parent = Profile
+NamePlayers.BackgroundTransparency = 1
+NamePlayers.Position = UDim2.new(1.2, 0, 0, 0)
+NamePlayers.Size = UDim2.new(0, 173, 0, 22)
+NamePlayers.Font = Enum.Font.FredokaOne
+NamePlayers.Text = "Name | N/A"
+NamePlayers.TextColor3 = Color3.fromRGB(255, 255, 255)
+NamePlayers.TextSize = 19
 
 loackplayerslabel.Name = "loackplayerslabel"
 loackplayerslabel.Parent = Profile
-loackplayerslabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-loackplayerslabel.BackgroundTransparency = 1.000
+loackplayerslabel.BackgroundTransparency = 1
 loackplayerslabel.Position = UDim2.new(0.1, 0, 1.1, 0)
 loackplayerslabel.Size = UDim2.new(0, 173, 0, 22)
 loackplayerslabel.Font = Enum.Font.FredokaOne
 loackplayerslabel.Text = "Lock Players | OFF"
 loackplayerslabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-loackplayerslabel.TextSize = 19.000
-loackplayerslabel.TextXAlignment = Enum.TextXAlignment.Left
-loackplayerslabel.TextYAlignment = Enum.TextYAlignment.Bottom
+loackplayerslabel.TextSize = 19
 
-NamePlayers.Name = "NamePlayers"
-NamePlayers.Parent = Profile
-NamePlayers.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-NamePlayers.BackgroundTransparency = 1.000
-NamePlayers.Position = UDim2.new(1.24220526, 0, 0.0109195411, 0)
-NamePlayers.Size = UDim2.new(0, 173, 0, 22)
-NamePlayers.Font = Enum.Font.FredokaOne
-NamePlayers.Text = "Name | N/A"
-NamePlayers.TextColor3 = Color3.fromRGB(255, 255, 255)
-NamePlayers.TextSize = 19.000
-NamePlayers.TextXAlignment = Enum.TextXAlignment.Left
-NamePlayers.TextYAlignment = Enum.TextYAlignment.Bottom
-
-Healthbar.Name = "Healthbar"
-Healthbar.Parent = Profile
-Healthbar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Healthbar.Position = UDim2.new(1.23333335, 0, 0.850000024, 0)
-Healthbar.Size = UDim2.new(0, 155, 0, 8)
-
-HealthbarCorner.Name = "HealthbarCorner"
-HealthbarCorner.Parent = Healthbar
-
-Healthgreen.Name = "Healthgreen"
-Healthgreen.Parent = Healthbar
-Healthgreen.BackgroundColor3 = Color3.fromRGB(0, 227, 110)
-Healthgreen.Size = UDim2.new(0, 155, 0, 8)
-
-HealthgreenCorner.Name = "HealthgreenCorner"
-HealthgreenCorner.Parent = Healthgreen
-
-function updateCircle(Fov, colorCircle)
-    if circle.__OBJECT_EXISTS then
-        circle.Transparency = 1
-        circle.Visible = true
-        circle.Thickness = 2
-        circle.Color = colorCircle
-        circle.NumSides = 100
-        circle.Radius = (Fov * 6) / 2
-        circle.Filled = false
-        circle.Position = Vector2.new(mouse.X, mouse.Y + (guiservice:GetGuiInset().Y))
-    end
+-- Mise à jour du cercle
+function updateCircle()
+    circle.Visible = true
+    circle.Thickness = 2
+    circle.Color = getgenv().setting.Color
+    circle.NumSides = 100
+    circle.Radius = getgenv().setting.Fov * 6 / 2
+    circle.Filled = false
+    circle.Position = Vector2.new(mouse.X, mouse.Y + guiservice:GetGuiInset().Y)
 end
 
-spawn(function()
-    game:GetService("RunService").RenderStepped:Connect(function()
-        pcall(function()
-            updateCircle(getgenv().setting['Fov'], getgenv().setting['Color'])
-        end)
-    end)
-end)
+game:GetService("RunService").RenderStepped:Connect(updateCircle)
 
+-- Détection des joueurs
 spawn(function()
     while wait() do
+        local closestPlayer = nil
+        local closestDistance = math.huge
+
         for _, v in pairs(players:GetPlayers()) do
             if v ~= localPlayer and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
                 local pos = currentCamera:WorldToViewportPoint(v.Character.HumanoidRootPart.Position)
                 local magnitude = (Vector2.new(pos.X, pos.Y) - Vector2.new(mouse.X, mouse.Y)).Magnitude
-                if magnitude < (getgenv().setting['Fov'] * 6 - 8) / 2 then
-                    if (v.Character.HumanoidRootPart.Position - localPlayer.Character.HumanoidRootPart.Position).Magnitude <= 1000 then
-                        if getgenv().setting['LockPlayers'] == false then
-                            Playersaimbot = v.Name
-                            PlayersPosition = v.Character.HumanoidRootPart.Position
-                            -- Reducing hitbox size
-                            v.Character.HumanoidRootPart.Size = Vector3.new(2, 2, 2)
-                            break -- Stop checking other players
-                        end
+
+                if magnitude < (getgenv().setting.Fov * 6 - 8) / 2 then
+                    local distance = (v.Character.HumanoidRootPart.Position - localPlayer.Character.HumanoidRootPart.Position).Magnitude
+
+                    if distance < closestDistance then
+                        closestPlayer = v
+                        closestDistance = distance
                     end
                 end
             end
         end
+
+        if closestPlayer then
+            Playersaimbot = closestPlayer.Name
+            NamePlayers.Text = "Name | " .. closestPlayer.Name
+            HealthPlayers.Text = "Health | " .. math.floor(closestPlayer.Character.Humanoid.Health) .. "/" .. closestPlayer.Character.Humanoid.MaxHealth
+            ImageProfile.Image = game:GetService("Players"):GetUserThumbnailAsync(closestPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
+
+            -- Réduction de la hitbox
+            closestPlayer.Character.HumanoidRootPart.Size = Vector3.new(2, 2, 2)
+        else
+            Playersaimbot = nil
+            NamePlayers.Text = "Name | N/A"
+            HealthPlayers.Text = "Health | N/A"
+            ImageProfile.Image = ""
+        end
+    end
+end)
+
+-- Verrouillage des joueurs
+game:GetService("UserInputService").InputBegan:Connect(function(io)
+    if io.KeyCode == getgenv().setting.LockPlayersBind then
+        getgenv().setting.LockPlayers = not getgenv().setting.LockPlayers
+        loackplayerslabel.Text = "Lock Players | " .. (getgenv().setting.LockPlayers and "ON" or "OFF")
+    end
+    if io.KeyCode == getgenv().setting.ResetPlayersBind then
+        Playersaimbot = nil
+        NamePlayers.Text = "Name | N/A"
+        HealthPlayers.Text = "Health | N/A"
+        ImageProfile.Image = ""
     end
 end)
